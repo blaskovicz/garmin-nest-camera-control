@@ -1,0 +1,4 @@
+<!-- {label, drawable, bitmap, selectable, button} -->
+<layout id="MainLayout">
+	<label color="Gfx.COLOR_WHITE" text="@Strings.AppName" />
+</layout>
