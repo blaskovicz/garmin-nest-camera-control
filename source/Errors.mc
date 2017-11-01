@@ -1,5 +1,5 @@
-// custom errors for instanceof checking in catch() clause
 class BaseError {
+	// custom errors for instanceof checking in catch() clause
 	private var cause;
 	function initialize(cause) {
 		self.cause = cause;
@@ -12,4 +12,4 @@ class BaseError {
 	}
 }
 
-class InvalidArgumentEror extends BaseError {}
+class InvalidArgumentEror extends BaseError { function initialize(cause){ BaseError.initialize(cause); } }

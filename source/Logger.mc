@@ -1,9 +1,11 @@
-// custom singleton logger
 using Toybox.System;
 using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
+
 var l;
+
+// custom singleton logger
 class Logger {
 	enum {
 		LevelDebug = 0,
@@ -12,10 +14,10 @@ class Logger {
 		LevelError = 3
 	}
 	
-	private var level;
-	static function getInstance(level) {
+	protected var level = LevelDebug;
+	static function getInstance() {
 		if (l == null) {
-			l = new Logger(level);
+			l = new Logger(null);
 		}
 		return l;
 	}
@@ -34,9 +36,6 @@ class Logger {
 		}
 	}
 	private static function formatMessageAndArgs(msg, args) {
-		if (args == null) {
-			return msg;
-		}
 		if(!(args instanceof Array)) {
 			args = [args];
 		}
@@ -49,23 +48,39 @@ class Logger {
 		}
 		var now = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 		System.println(
-			Lang.format("[$1][$2-$3-$4T$5:$6:$7] $8", [levelString(level), now.year, now.month, now.day, now.hour, now.min, now.sec, msg])
+			Lang.format("[$1$][$2$-$3$-$4$T$5$:$6$:$7$] $8$", [levelString(level), now.year, now.month.format("%02d"), now.day.format("%02d"), now.hour.format("%02d"), now.min.format("%02d"), now.sec.format("%02d"), msg])
 		);
 	}
-	function debug(msg, args) {
+	function debugF(msg, args) {
 		self.log(LevelDebug, formatMessageAndArgs(msg, args));
 	}
-	function info(msg, args) {
+	function infoF(msg, args) {
 		self.log(LevelInfo, formatMessageAndArgs(msg, args));
 	}
-	function warn(msg, args) {
+	function warnF(msg, args) {
 		self.log(LevelWarn, formatMessageAndArgs(msg, args));
 	}
-	function error(msg, args) {
+	function errorF(msg, args) {
 		self.log(LevelError, formatMessageAndArgs(msg, args));
 	}
-	function fatal(msg, args) {
+	function fatalF(msg, args) {
 		self.log(LevelError, formatMessageAndArgs(msg, args));
+		System.exit();
+	}
+	function debug(msg) {
+		self.log(LevelDebug, msg);
+	}
+	function info(msg) {
+		self.log(LevelInfo, msg);
+	}
+	function warn(msg) {
+		self.log(LevelWarn, msg);
+	}
+	function error(msg) {
+		self.log(LevelError, msg);
+	}
+	function fatal(msg) {
+		self.log(LevelError, msg);
 		System.exit();
 	}
 	function getLevel() {
@@ -78,26 +93,32 @@ class Logger {
 		}
 		level = level.toUpper();
 		switch(level) {
-			case "DEBUG":
+			case "DEBUG": {
 				self.level = LevelDebug;
 				break;
-			case "INFO":
+			}
+			case "INFO": {
 				self.level = LevelInfo;
 				break;
-			case "WARN":
+			}
+			case "WARN": {
 				self.level = LevelWarn;
 				break;
+			}
 			case "ERROR":
-			case "FATAL":
+			case "FATAL": {
 				self.level = LevelError;
 				break;
-			default:
-				throw new InvalidArgumentEror(Lang.format("invalid level argument '$1' passed to logger", [level]));			
+			}
+			default: {
+				throw new InvalidArgumentEror(Lang.format("invalid level argument '$1' passed to logger", [level]));
+			}			
 		}	
 	}
-	private function initialize(level) {
+	// If I try to make this private, I get - ERROR:stdin:1023: Redefinition of label (code) globals_Logger_initialize
+	function initialize(level) {
 		if (level == null) {
-			level = "DEBUG";
+			return;
 		}
 		self.setLevel(level);
 	}

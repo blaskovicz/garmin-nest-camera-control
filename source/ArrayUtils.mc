@@ -1,5 +1,6 @@
-// helper methods for https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/Lang/Array.html
 class ArrayUtils {
+	// helper methods for https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/Lang/Array.html
+
 	// add to back: returns new array
 	static function push(target, item) {
 		return target.add(item);
