@@ -89,7 +89,7 @@ class Logger {
 	function setLevel(level) {
 		// TODO handle enum as arg
 		if ( level == null || !(level instanceof String)) {
-			throw new InvalidArgumentEror("invalid level argument type passed to logger");
+			throw new InvalidArgumentError("invalid level argument type passed to logger");
 		}
 		level = level.toUpper();
 		switch(level) {
@@ -111,7 +111,7 @@ class Logger {
 				break;
 			}
 			default: {
-				throw new InvalidArgumentEror(Lang.format("invalid level argument '$1' passed to logger", [level]));
+				throw new InvalidArgumentError(Lang.format("invalid level argument '$1' passed to logger", [level]));
 			}			
 		}	
 	}

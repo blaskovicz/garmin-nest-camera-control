@@ -1,7 +1,10 @@
-class BaseError {
+using Toybox.Lang;
+
+class BaseError extends Lang.Exception {
 	// custom errors for instanceof checking in catch() clause
 	private var cause;
 	function initialize(cause) {
+		Exception.initialize();
 		self.cause = cause;
 	}
 	function getCause() {
@@ -12,4 +15,4 @@ class BaseError {
 	}
 }
 
-class InvalidArgumentEror extends BaseError { function initialize(cause){ BaseError.initialize(cause); } }
+class InvalidArgumentError extends BaseError { function initialize(cause){ BaseError.initialize(cause); } }

@@ -23,6 +23,7 @@ class GNCCApp extends App.AppBase {
     // Return the initial view of your application here
     function getInitialView() {
     	Logger.getInstance().info("ref=gncc-app at=get-initial-view");
-        return [ new GNCCView(), new GNCCInputDelegate() ];
+    	var view = new SummaryView();
+        return [ view, new SummaryDelegate(view) ];
     }
 }
