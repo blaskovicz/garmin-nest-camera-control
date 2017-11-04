@@ -3,7 +3,7 @@ using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 
-var l;
+var _log;
 
 // custom singleton logger
 class Logger {
@@ -16,10 +16,10 @@ class Logger {
 	
 	protected var level = LevelDebug;
 	static function getInstance() {
-		if (l == null) {
-			l = new Logger(null);
+		if (_log == null) {
+			_log = new Logger(null);
 		}
-		return l;
+		return _log;
 	}
 	static function levelString(level) {
 		switch(level) {
@@ -115,8 +115,7 @@ class Logger {
 			}			
 		}	
 	}
-	// If I try to make this private, I get - ERROR:stdin:1023: Redefinition of label (code) globals_Logger_initialize
-	function initialize(level) {
+	protected function initialize(level) {
 		if (level == null) {
 			return;
 		}
