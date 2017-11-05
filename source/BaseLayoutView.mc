@@ -11,6 +11,7 @@ class BaseLayoutView extends Ui.View {
 	protected var offsetY;
 	protected var ref;
 	protected var pushingView;
+	protected var toastTimeout;
 
     function initialize() {
     	if (self.ref == null) {
@@ -72,16 +73,51 @@ class BaseLayoutView extends Ui.View {
     	// clear screen
     	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
     	dc.clear();
+    	dc.setPenWidth(3);
     	
-    	// draw header
-    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-    	dc.drawText(self.width/2, fontTinyHeight, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
-    	dc.drawLine(0, fontTinyHeight*2, self.width, fontTinyHeight*2);
+		// draw toast message if we have one, otherwise the normal header
+		if (!isAnEphemeralView && currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
+	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+	    	dc.fillRectangle(0, 0, self.width, fontTinyHeight*2 - 10);
+	    	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+	    	dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, "Success!", Graphics.TEXT_JUSTIFY_CENTER);
+	    	dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
+	    	self.startToastTimeout();
+		} else {
+	    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+	    	dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
+	    	dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
+	    }
 
 		// let children know where to start drawing
-    	self.offsetY = fontTinyHeight*2;
+    	self.offsetY = fontTinyHeight*2 - 5;
 
+		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+		dc.setPenWidth(1);
     	return false;
+    }
+    
+    function startToastTimeout() {
+    	if (self.toastTimeout != null) {
+    		return;
+    	}
+    	Logger.getInstance().infoF("ref=$1$ at=start-toast-timeout", [self.ref]);
+    	// start our timer to cancel the toast after 3 seconds
+    	self.toastTimeout = new Timer.Timer();
+    	self.toastTimeout.start(self.method(:clearToast), 2500, false);
+    }
+    
+    function clearToast() {
+    	if (self.toastTimeout == null) {
+    		return;
+    	}
+    	Logger.getInstance().infoF("ref=$1$ at=clear-toast", [self.ref]);
+    	self.toastTimeout.stop();
+    	self.toastTimeout = null;
+    	var currentState = NestApi.getInstance().getState();
+    	if (currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
+    		NestApi.getInstance().clearState();
+    	}
     }
 
     // Called when this View is removed from the screen. Save the
@@ -89,5 +125,6 @@ class BaseLayoutView extends Ui.View {
     // memory.
     function onHide() {
     	Logger.getInstance().infoF("ref=$1$ at=on-hide", [self.ref]);
+    	self.clearToast();
     }
 }

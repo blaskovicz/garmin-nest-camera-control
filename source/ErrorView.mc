@@ -41,6 +41,7 @@ class ErrorView extends BaseLayoutView {
 		var currentState = NestApi.getInstance().getState();
 		var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "An error occurred.\n";
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+		// TODO: wrap text to multiple lines for long errors
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
