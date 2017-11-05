@@ -1,5 +1,9 @@
 using Toybox.Application as App;
 
+// Getting started links:
+// * https://developer.garmin.com/connect-iq/programmers-guide/monkey-c/
+// * https://developer.garmin.com/connect-iq/programmers-guide/user-interface/
+// * https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/WatchUi.html
 class GNCCApp extends App.AppBase {
     function initialize() {
     	Logger.getInstance().info("ref=gncc-app at=initialize");

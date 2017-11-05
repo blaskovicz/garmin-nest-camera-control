@@ -2,6 +2,7 @@ using Toybox.WatchUi as Ui;
 using Toybox.Graphics;
 using Toybox.Communications as Comm;
 using Toybox.Lang;
+using Env;
 
 class CameraListDelegate extends Ui.BehaviorDelegate {
 	protected var listUi;
@@ -24,6 +25,7 @@ class CameraListDelegate extends Ui.BehaviorDelegate {
         } else if (key == Ui.KEY_UP) {
             return onPreviousPage();
         }
+        return false;
     }
     
     function onPreviousPage() {
@@ -43,55 +45,39 @@ class CameraListDelegate extends Ui.BehaviorDelegate {
     }
 }
 
-class CameraListView extends Ui.View {
-	protected var width;
-	protected var height;
-	protected var errorState;
+class CameraListView extends BaseLayoutView {
 	protected var page;
 
     function initialize() {
-   		Logger.getInstance().info("ref=camera-list-view at=initialize");
+   		self.ref = "camera-list-view";
    		self.page = 0;
-        View.initialize();
+        BaseLayoutView.initialize();
     }
 
-    function onShow() {
-    	Logger.getInstance().info("ref=camera-list-view at=on-show");
-    }
-    
     function setPage(page) {
     	self.page = page;
     	Ui.requestUpdate();
     }
 
+	// TODO i think the camera view should own the controller (delegate) 
+	// and also handle the case where the item list size changes while reloading
     function onUpdate(dc) {
-    	Logger.getInstance().info("ref=camera-list-view at=on-update");
-    	self.width = dc.getWidth();
-    	self.height = dc.getHeight();
-    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-    	dc.clear();
-    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-    	
-    	dc.drawLine(0, fontTinyHeight*2, width, fontTinyHeight*2);
-    	dc.drawText(self.width/2, fontTinyHeight, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
-    	
-    	if (NestApi.getInstance().getErrorState() != null) {
-	    	dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(self.width/2, fontTinyHeight*3, Graphics.FONT_TINY, NestApi.getInstance().getErrorState(), Graphics.TEXT_JUSTIFY_CENTER);
-    	} else {
-			self.drawCameraList(dc, fontTinyHeight*2);
-		}	
-    	return true;      	
+    	if(BaseLayoutView.onUpdate(dc)) {
+    		return true;
+    	}
+		self.drawCameraList(dc);
+		return true;	
 	}
 	
-	function drawCameraList(dc, yOffset) {
+	function drawCameraList(dc) {
+		var yOffset = self.offsetY;
     	var cameraList = NestApi.getInstance().getCameraList();
     	if (!NestApi.getInstance().hasCameras()) {
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		dc.drawText(self.width/2, yOffset, Graphics.FONT_SMALL, "No cameras found.", Graphics.TEXT_JUSTIFY_CENTER);
     	} else {
     		// divide remaining space up into 5 parts; 70% for 3 camera rows, 30% for page selectors
-    		var selectHeight = ((self.height - yOffset)/100 * 30)/2;
+    		var selectHeight = ((self.height - yOffset)/100 * 20)/2;
     		
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		
@@ -127,14 +113,9 @@ class CameraListView extends Ui.View {
 	    		dc.fillPolygon([
 	    			[self.width/2 - selectHeight/2, self.height - selectHeight - 10],
 	    			[self.width/2 , self.height - 10],			
-	    			[self.width/2 + selectHeight/2, self.height  - selectHeight - 10]
+	    			[self.width/2 + selectHeight/2, self.height - selectHeight - 10]
 	    		]);
 	    	}
     	}
-    }
-
-    function onHide() {
-    	Logger.getInstance().info("ref=camera-list-view at=on-hide");
-    	NestApi.getInstance().clearErrorState();
     }
 }
