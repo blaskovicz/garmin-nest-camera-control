@@ -42,7 +42,6 @@ static class NestApi {
 		Logger.getInstance().info("ref=nest-api at=initialize");
 		Comm.registerForOAuthMessages(self.method(:onOauthResponsePhase1));
 		self.timerStarted = false;
-		self.requestCameraStatus();
 	}
 	
 	function getState() {
@@ -146,7 +145,6 @@ static class NestApi {
 			return;
 		}
 		Logger.getInstance().info("ref=nest-api at=request-camera-status");
-    	self.camerasUpdatedAt = now;    	
         Comm.makeWebRequest(
             "https://developer-api.nest.com/devices/cameras",
             null,
@@ -174,6 +172,7 @@ static class NestApi {
     		}
     		Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$' data='$2$'", [responseCode, cameraList]);
     		self.cameraList = cameraList;
+    		self.camerasUpdatedAt = Time.now();
     	}
     }
     
@@ -229,7 +228,9 @@ static class NestApi {
     	if (self.timerStarted) {
     		return;
     	}
-    	Logger.getInstance().info("ref=nest-api at=start-timer");    	
+    	Logger.getInstance().info("ref=nest-api at=start-timer");
+		self.loadCachedCameraList();
+		self.requestCameraStatus();
     	self.timerStarted = true;
     	self.timer = new Timer.Timer();
     	self.timer.start(self.method(:requestCameraStatus), 30000, true);
@@ -240,9 +241,26 @@ static class NestApi {
     		return;
 		}
 		Logger.getInstance().info("ref=nest-api at=stop-timer");
+		self.saveCachedCameraList();
 		self.timerStarted = false;
     	self.timer.stop();
     	Comm.cancelAllRequests();
+    }
+    
+    protected function loadCachedCameraList() {
+    	if (self.cameraList != null) {
+    		return;
+    	}
+		self.cameraList = Properties.getCameraList();
+		self.camerasUpdatedAt = Properties.getCamerasUpdatedAt();
+    }
+
+    protected function saveCachedCameraList() {
+    	if (self.cameraList == null) {
+    		return;
+    	}
+    	Properties.setCameraList(self.cameraList);
+    	Properties.setCamerasUpdatedAt(self.camerasUpdatedAt);
     }
     
     // oauth flow based on https://github.com/garmin/connectiq-apps/blob/1a7588e4c85726518c6744213516c9988ebdf45e/apps/strava-api/source/StravaLogin.mc
