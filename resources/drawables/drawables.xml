@@ -1,3 +1,6 @@
+<!-- http://fontawesome.io/icons/ | https://github.com/encharm/Font-Awesome-SVG-PNG -->
 <drawables>
-	<bitmap id="LauncherIcon" filename="launcher_icon.png" />
+	<bitmap id="LauncherIcon" filename="32/video-camera.png" />
+	<bitmap id="times16" filename="16/times.png" />
+	<bitmap id="check16" filename="16/check.png" />
 </drawables>

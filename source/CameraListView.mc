@@ -47,11 +47,18 @@ class CameraListDelegate extends Ui.BehaviorDelegate {
 
 class CameraListView extends BaseLayoutView {
 	protected var page;
-
+	protected var iconTimes;
+	protected var iconCheck;
     function initialize() {
    		self.ref = "camera-list-view";
    		self.page = 0;
         BaseLayoutView.initialize();
+    }
+    
+    function onShow() {
+    	BaseLayoutView.onShow();
+    	self.iconTimes = Ui.loadResource(Rez.Drawables.times16);
+    	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
     }
 
     function setPage(page) {
@@ -103,7 +110,12 @@ class CameraListView extends BaseLayoutView {
     			} else {
     				dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     			}
-    			dc.drawText(self.width/2, currentOffset-rowHeight/2-10, Graphics.FONT_TINY, (camera["is_streaming"] ? "(live) " : "") + camera["name"], Graphics.TEXT_JUSTIFY_CENTER);
+    			var icon = camera["is_streaming"] ? self.iconCheck : self.iconTimes;
+    			var textDimensions = dc.getTextDimensions(camera["name"], Graphics.FONT_XTINY);
+    			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
+    			var iconOffsetY = (textDimensions[1] - 16)/ 2;
+    			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffset-rowHeight/2-10 + iconOffsetY , self.iconCheck);
+    			dc.drawText(self.width/2, currentOffset-rowHeight/2-10, Graphics.FONT_XTINY, camera["name"], Graphics.TEXT_JUSTIFY_CENTER);
 	    		dc.drawLine(0, currentOffset, width, currentOffset);
 	    	}
 
