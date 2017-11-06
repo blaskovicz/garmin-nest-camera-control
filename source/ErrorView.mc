@@ -38,6 +38,7 @@ class ErrorView extends BaseLayoutView {
     	if (BaseLayoutView.onUpdate(dc)) {
     		return true;
     	}
+    	// TODO this blinks white text and then red after the transition - fix
 		var currentState = NestApi.getInstance().getState();
 		var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "An error occurred.\n";
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);

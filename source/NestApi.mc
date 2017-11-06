@@ -8,20 +8,11 @@ using Toybox.Communications as Comm;
 var _api;
 
 // Singleton NestApi:
-//
-// Delegate.onAction:
-//	 NestApi.getInstance().doThing(args...)
-// View.onUpdate:
-//	 if (NestApi.getInstance().getErrorState() != null) {
-//  	render error...
-//	 } else {
-//		render camera info...
-//   }
 
 // TODO: buffer, splay and retry request to handle BLE QUEUE FULL error (code -101)
 // TODO also a way of queueing or handlying multiple request/response pairs
 static class NestApi {
-	static const unusedCameraFields = ["app_url", "web_url", "last_event", "where_id", "where_name", "structure_id", "software_version", "name_long"];
+	static const unusedCameraFields = ["app_url", "web_url", "last_event", "where_id", "where_name", "structure_id", "software_version", "name_long", "last_is_online_change", "is_video_history_enabled", "is_audio_input_enabled"];
 
 	enum {
 		StateRequestError = 0,
@@ -123,6 +114,7 @@ static class NestApi {
 		return true;
 	}
 
+	// TODO handle this error in the ui (error flash)
 	protected function setPollerStateRequestError(text) {
 		// requesting -> error
 		if(self.pollerState == null || self.pollerState[:state] != StateRequesting) {
@@ -168,19 +160,20 @@ static class NestApi {
     	);
     }
     
-    function onCameraListResponse(responseCode, data) {
-    	// Can't log the data here because it blows out memory
-    	Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$'", [responseCode]);
+    function onCameraListResponse(responseCode, data) {    	
     	if (responseCode != 200) {
+    		Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$'", [responseCode]);
     		self.setPollerStateRequestError(Lang.format("Failed to get cameras:\nCode $1$.", [responseCode]));
     	} else if (self.setPollerStateRequestSuccess()) {
-    		self.cameraList = data.values();
+    		var cameraList = data.values();
     		// clean out some of the data we don't use since the memory usage may be too beefy
-    		for (var i = 0; i < self.cameraList.size(); i++) {
+    		for (var i = 0; i < cameraList.size(); i++) {
     			for (var j = 0; j < unusedCameraFields.size(); j++) {
-    				self.cameraList[i].remove(unusedCameraFields[j]);
+    				cameraList[i].remove(unusedCameraFields[j]);
     			} 
     		}
+    		Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$' data='$2$'", [responseCode, cameraList]);
+    		self.cameraList = cameraList;
     	}
     }
     
@@ -239,7 +232,7 @@ static class NestApi {
     	Logger.getInstance().info("ref=nest-api at=start-timer");    	
     	self.timerStarted = true;
     	self.timer = new Timer.Timer();
-    	self.timer.start(self.method(:requestCameraStatus), 60000, true);
+    	self.timer.start(self.method(:requestCameraStatus), 30000, true);
     }
     
     function stopTimer() {
@@ -300,10 +293,11 @@ static class NestApi {
     		return;
     	}
     	Logger.getInstance().infoF("ref=nest-api at=on-oauth-response-phase-1 response-code='$1$' data='$2$'", [resp.responseCode, resp.data]);
-    	if (resp.responseCode == 200 && resp.data != null && resp.data["code"] != null && "TODO".equals(resp.data["state"])) {
-			if(!self.setStateRequestSuccess()) {
-				return;
-			}
+    	if (resp.data != null && resp.data["code"] != null && "TODO".equals(resp.data["state"])) {
+    		// skip setting request success to avoid transaction race between toast and phase 2 response
+			//if(!self.setStateRequestSuccess()) {
+			//	return;
+			//}
     		self.requestAccessToken(resp.data["code"]);
     	} else {
 			if(!self.setStateRequestError(Lang.format("Failed to authorize:\nCode $1$.", [resp.responseCode]))) {
@@ -314,9 +308,13 @@ static class NestApi {
     }
 
     function requestAccessToken(code) {
-		if(!self.setStateRequesting(null)) {
-			return;
-		}
+    	if (!self.connecting) {
+    		return;
+    	}
+    	// already "requesting"
+		//if(!self.setStateRequesting(null)) {
+		//	return;
+		//}
     	Logger.getInstance().infoF("ref=nest-api at=request-access-token code='$1$'", [code]);
         Comm.makeWebRequest(
             "https://api.home.nest.com/oauth2/access_token",

@@ -27,6 +27,8 @@ class SummaryDelegate extends Ui.BehaviorDelegate {
     		var view = new CameraListView();
     		Ui.pushView(view, new CameraListDelegate(view), Ui.SLIDE_LEFT);
     		return true;
+    	} else {
+    		NestApi.getInstance().requestCameraStatus();
     	}
     }
 }
@@ -44,6 +46,7 @@ class SummaryView extends BaseLayoutView {
     	self.drawSummary(dc);
     }
     
+    // TODO: render an error if we can't contact the nest api
     function drawSummary(dc) {
     	if (NestApi.getInstance().isConnected()) {
     		self.drawCameraInfo(dc);

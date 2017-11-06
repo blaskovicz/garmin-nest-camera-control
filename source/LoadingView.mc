@@ -48,5 +48,6 @@ class LoadingView extends BaseLayoutView {
     	var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "Processing...";
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		// TODO draw loading dots / arc / timeout time
 	}
 }
