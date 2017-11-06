@@ -30,18 +30,20 @@ class CameraListDelegate extends Ui.BehaviorDelegate {
     
     function onPreviousPage() {
     	if (self.page == 0) {
-    		return;    
+    		return true;
     	}
     	self.page = self.page - 1;
     	self.listUi.setPage(self.page);
+    	return true;
     }
 
     function onNextPage() {
     	if (!NestApi.getInstance().hasCameras() || NestApi.getInstance().getCameraList().size()-1 == self.page) {
-    		return;
+    		return true;
     	}
     	self.page = self.page + 1;
     	self.listUi.setPage(self.page);
+    	return true;
     }
 }
 
