@@ -138,7 +138,7 @@ static class NestApi {
     	// if we haven't reach at least 1 minute from our last update, wait.
     	var now = Time.now();
     	var accessToken = Properties.getNestAccessToken();
-    	if (accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:minutes => 1}))))) {
+    	if (accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:seconds => 30}))))) {
     		return;
     	}
 		if(!self.setPollerStateRequesting()) {
@@ -161,7 +161,7 @@ static class NestApi {
     function onCameraListResponse(responseCode, data) {    	
     	if (responseCode != 200) {
     		Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$'", [responseCode]);
-    		self.setPollerStateRequestError(Lang.format("Failed to get cameras:\nCode $1$.", [responseCode]));
+    		self.setPollerStateRequestError(Lang.format("Error $1$", [responseCode]));
     	} else if (self.setPollerStateRequestSuccess()) {
     		var cameraList = data.values();
     		// clean out some of the data we don't use since the memory usage may be too beefy

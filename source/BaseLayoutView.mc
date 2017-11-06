@@ -2,6 +2,7 @@
 // providing some helper functionality
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics;
+using Toybox.Lang;
 
 var fontTinyHeight = Graphics.getFontHeight(Graphics.FONT_TINY);
 
@@ -12,6 +13,7 @@ class BaseLayoutView extends Ui.View {
 	protected var ref;
 	protected var pushingView;
 	protected var toastTimeout;
+	protected var toastPollerTimeout;
 
     function initialize() {
     	if (self.ref == null) {
@@ -42,7 +44,9 @@ class BaseLayoutView extends Ui.View {
     	if (self.pushingView) {
     		return true;
     	}
+    	
     	var currentState = NestApi.getInstance().getState();
+    	var pollerState = NestApi.getInstance().getPollerState();
     	
     	// if we're using an ephemeral view, switch to the next ephemeral
     	// view instead of pushing it so pop works as expected.
@@ -76,13 +80,12 @@ class BaseLayoutView extends Ui.View {
     	dc.setPenWidth(3);
     	
 		// draw toast message if we have one, otherwise the normal header
-		if (!isAnEphemeralView && currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
-	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-	    	dc.fillRectangle(0, 0, self.width, fontTinyHeight*2 - 10);
-	    	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-	    	dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, "Success!", Graphics.TEXT_JUSTIFY_CENTER);
-	    	dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
+		if (!isAnEphemeralView && currentState != null && currentState[:state] == NestApi.StateRequestSuccess && self.toastPollerTimeout == null) {
+			self.drawToast(dc, Graphics.COLOR_DK_GREEN, "Success");
 	    	self.startToastTimeout();
+	    } else if (!isAnEphemeralView && pollerState != null && pollerState[:state] == NestApi.StateRequestError && self.toastTimeout == null) {
+	    	self.drawToast(dc, Graphics.COLOR_RED, pollerState[:text]);
+	    	self.startToastPollerTimeout();
 		} else {
 	    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 	    	dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
@@ -97,6 +100,15 @@ class BaseLayoutView extends Ui.View {
     	return false;
     }
     
+    function drawToast(dc, color, text) {
+		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+		dc.fillRectangle(0, 0, self.width, fontTinyHeight*2 - 10);
+		dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
+    }
+    
+    // TODO common toast queue
     function startToastTimeout() {
     	if (self.toastTimeout != null) {
     		return;
@@ -105,6 +117,16 @@ class BaseLayoutView extends Ui.View {
     	// start our timer to cancel the toast after 3 seconds
     	self.toastTimeout = new Timer.Timer();
     	self.toastTimeout.start(self.method(:clearToast), 2500, false);
+    }
+
+    function startToastPollerTimeout() {
+    	if (self.toastPollerTimeout != null) {
+    		return;
+    	}
+    	Logger.getInstance().infoF("ref=$1$ at=start-toast-poller-timeout", [self.ref]);
+    	// start our timer to cancel the toast after 3 seconds
+    	self.toastPollerTimeout = new Timer.Timer();
+    	self.toastPollerTimeout.start(self.method(:clearToastPoller), 2500, false);
     }
     
     function clearToast() {
@@ -117,6 +139,19 @@ class BaseLayoutView extends Ui.View {
     	var currentState = NestApi.getInstance().getState();
     	if (currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
     		NestApi.getInstance().clearState();
+    	}
+    }
+
+    function clearToastPoller() {
+    	if (self.toastPollerTimeout == null) {
+    		return;
+    	}
+    	Logger.getInstance().infoF("ref=$1$ at=clear-toast-poller", [self.ref]);
+    	self.toastPollerTimeout.stop();
+    	self.toastPollerTimeout = null;
+    	var currentState = NestApi.getInstance().getPollerState();
+    	if (currentState != null && currentState[:state] == NestApi.StateRequestError) {
+    		NestApi.getInstance().clearPollerState();
     	}
     }
 
