@@ -34,9 +34,17 @@ class SummaryDelegate extends Ui.BehaviorDelegate {
 }
    
 class SummaryView extends BaseLayoutView {
+	protected var iconTimes;
+	protected var iconCheck;
     function initialize() {
     	self.ref = "summary-view";
         BaseLayoutView.initialize();
+    }
+
+    function onShow() {
+    	BaseLayoutView.onShow();
+    	self.iconTimes = Ui.loadResource(Rez.Drawables.times16);
+    	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
     }
 
     function onUpdate(dc) {
@@ -68,27 +76,58 @@ class SummaryView extends BaseLayoutView {
     	} else {
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		dc.drawText(self.width/2, self.offsetY, Graphics.FONT_SMALL, "Camera Status:", Graphics.TEXT_JUSTIFY_CENTER);
-    		var onlineCount = 0;
-    		var streamCount = 0;
+    		
+    		var status = {"Online" => 0, "Live" => 0};
     		for (var i = 0; i < cameraList.size(); i++) {
     			var item = cameraList[i];
     			if (item["is_online"]) {
-    				onlineCount++;
+    				status["Online"]++;
     			}
     			if (item["is_streaming"]) {
-    				streamCount++;
+    				status["Live"]++;
     			}
-    		}
-    		if (onlineCount != cameraList.size()) {
-    			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-    		} else {
-    			dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
     		}
     		
     		// online means connected to nest cloud, streaming means digitally taking pictures
-    		dc.drawText(self.width/2, self.offsetY+2*fontTinyHeight, Graphics.FONT_SMALL, Lang.format("$1$/$2$ Online", [onlineCount, cameraList.size()]), Graphics.TEXT_JUSTIFY_CENTER);
-    		dc.drawText(self.width/2, self.offsetY+3*fontTinyHeight, Graphics.FONT_SMALL, Lang.format("$1$/$2$ Live", [streamCount, cameraList.size()]), Graphics.TEXT_JUSTIFY_CENTER);
-    	}
+    		var statuses = status.keys();
+    		for (var i = 0; i < statuses.size(); i++) {
+    			var icon;
+    			var statusText;
+    			
+	    		if (status[statuses[i]] != cameraList.size()) {
+	    			icon = self.iconTimes;
+	    			// eg: 1 of 2 online
+		    		statusText = Lang.format(
+	    				"$1$ of $2$ $3$",
+	    				[status[statuses[i]], cameraList.size(), statuses[i]]
+	    			);
+	    			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+	    		} else {
+	    			icon = self.iconCheck;
+	    			// eg: 1 online
+		    		statusText = Lang.format(
+	    				"$1$ $2$",
+	    				[status[statuses[i]], statuses[i]]
+	    			);
+	    			dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+	    		}
+
+    			
+	    		var textDimensions = dc.getTextDimensions(statusText, Graphics.FONT_SMALL);
+    			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
+    			var iconOffsetY = (textDimensions[1] - 16)/ 2;
+    			var currentOffsetY = self.offsetY + (i+2)*fontTinyHeight;
+    			
+    			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffsetY + iconOffsetY, icon);
+	    		dc.drawText(
+	    			self.width/2,
+	    			currentOffsetY,
+	    			Graphics.FONT_SMALL,
+	    			statusText,
+	    			Graphics.TEXT_JUSTIFY_CENTER
+	    		);
+    		}
+   		}
     	
     	if (camerasUpdatedAt != null) {
 	    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
