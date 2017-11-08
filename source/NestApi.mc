@@ -4,6 +4,7 @@ using Toybox.Time;
 using Toybox.Timer;
 using Toybox.Time.Gregorian;
 using Toybox.Communications as Comm;
+using Env;
 
 var _api;
 
@@ -113,7 +114,6 @@ static class NestApi {
 		return true;
 	}
 
-	// TODO handle this error in the ui (error flash)
 	protected function setPollerStateRequestError(text) {
 		// requesting -> error
 		if(self.pollerState == null || self.pollerState[:state] != StateRequesting) {
@@ -135,13 +135,16 @@ static class NestApi {
 	}
 
     function requestCameraStatus() {
-    	// if we haven't reach at least 1 minute from our last update, wait.
     	var now = Time.now();
     	var accessToken = Properties.getNestAccessToken();
-    	if (accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:seconds => 30}))))) {
+    	// our poller runs every 30 seconds, so make sure we're rate limitting user-initiated requests to 1 per second max
+    	if (accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:seconds => 1}))))) {
+    		Logger.getInstance().infoF(
+    			"ref=nest-api at=skip-request-camera-status has-token=$1$ cameras-updated-delta=$2$",
+    			[accessToken != null, (self.camerasUpdatedAt == null ? "null" : now.value()-self.camerasUpdatedAt.value())]
+    		);
     		return;
-    	}
-		if(!self.setPollerStateRequesting()) {
+    	} else if(!self.setPollerStateRequesting()) {
 			return;
 		}
 		Logger.getInstance().info("ref=nest-api at=request-camera-status");
@@ -186,8 +189,8 @@ static class NestApi {
 		}
     	Logger.getInstance().infoF("ref=nest-api at=request-toggle-streaming camera=$1$ to=$2$", [camera["device_id"], !camera["is_streaming"]]);    	
         Comm.makeWebRequest(
-            Lang.format("https://developer-api.nest.com/devices/cameras/$1$", [camera["device_id"]]),
-            { "is_streaming" => !camera["is_streaming"] }, // TODO verify this works on a real device - https://forums.garmin.com/forum/developers/connect-iq/145494
+            Lang.format("$1$/devices/cameras/$2$", [Env.NestApiProxyURI, camera["device_id"]]),
+            { "is_streaming" => !camera["is_streaming"] },
             {
             	:method => Comm.HTTP_REQUEST_METHOD_PUT,
             	:headers => {
@@ -205,6 +208,7 @@ static class NestApi {
     		self.setStateRequestError(Lang.format("Failed to update camera:\nCode $1$.", [responseCode]));
     	} else {
     		self.setStateRequestSuccess();
+    		self.requestCameraStatus();
     	}
     }
 
