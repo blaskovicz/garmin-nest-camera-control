@@ -116,9 +116,14 @@ class CameraListView extends BaseLayoutView {
     			var textDimensions = dc.getTextDimensions(camera["name"], Graphics.FONT_XTINY);
     			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
     			var iconOffsetY = (textDimensions[1] - 16)/ 2;
-    			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffset-rowHeight/2-10 + iconOffsetY , self.iconCheck);
+
+    			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffset-rowHeight/2-10 + iconOffsetY , icon);
     			dc.drawText(self.width/2, currentOffset-rowHeight/2-10, Graphics.FONT_XTINY, camera["name"], Graphics.TEXT_JUSTIFY_CENTER);
-	    		dc.drawLine(0, currentOffset, width, currentOffset);
+    			if (j == 0) {
+    				dc.setPenWidth(3);
+    			}
+	    		dc.drawLine(0, currentOffset, self.width, currentOffset);
+	    		dc.setPenWidth(1);
 	    	}
 
     		// scroll down
