@@ -32,6 +32,8 @@ class ErrorView extends BaseLayoutView {
 	function onShow() {
 		BaseLayoutView.onShow();
 		NestApi.getInstance().stopTimer();
+		Notify.enableBacklight();
+		Notify.vibrate(:short);
 	}
 
 	function onUpdate(dc) {
@@ -50,5 +52,6 @@ class ErrorView extends BaseLayoutView {
 		BaseLayoutView.onHide();
 		NestApi.getInstance().clearState();
 		NestApi.getInstance().startTimer();
+		Notify.disableBacklight();
 	}
 }

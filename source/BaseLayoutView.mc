@@ -116,7 +116,9 @@ class BaseLayoutView extends Ui.View {
     	Logger.getInstance().infoF("ref=$1$ at=start-toast-timeout", [self.ref]);
     	// start our timer to cancel the toast after 3 seconds
     	self.toastTimeout = new Timer.Timer();
-    	self.toastTimeout.start(self.method(:clearToast), 2500, false);
+    	self.toastTimeout.start(self.method(:clearToast), 5000, false);
+    	Notify.enableBacklight();
+    	Notify.vibrate(:short);	
     }
 
     function startToastPollerTimeout() {
@@ -126,7 +128,8 @@ class BaseLayoutView extends Ui.View {
     	Logger.getInstance().infoF("ref=$1$ at=start-toast-poller-timeout", [self.ref]);
     	// start our timer to cancel the toast after 3 seconds
     	self.toastPollerTimeout = new Timer.Timer();
-    	self.toastPollerTimeout.start(self.method(:clearToastPoller), 2500, false);
+    	self.toastPollerTimeout.start(self.method(:clearToastPoller), 5000, false);
+		Notify.enableBacklight();
     }
     
     function clearToast() {
@@ -140,6 +143,7 @@ class BaseLayoutView extends Ui.View {
     	if (currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
     		NestApi.getInstance().clearState();
     	}
+		Notify.disableBacklight();
     }
 
     function clearToastPoller() {
@@ -153,6 +157,7 @@ class BaseLayoutView extends Ui.View {
     	if (currentState != null && currentState[:state] == NestApi.StateRequestError) {
     		NestApi.getInstance().clearPollerState();
     	}
+		Notify.disableBacklight();
     }
 
     // Called when this View is removed from the screen. Save the
@@ -161,5 +166,6 @@ class BaseLayoutView extends Ui.View {
     function onHide() {
     	Logger.getInstance().infoF("ref=$1$ at=on-hide", [self.ref]);
     	self.clearToast();
+    	self.clearToastPoller();
     }
 }

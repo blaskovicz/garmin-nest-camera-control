@@ -27,7 +27,7 @@ class LoadingView extends BaseLayoutView {
 
     function startTimer() {
     	self.timer = new Timer.Timer();
-    	self.timer.start(self.method(:checkRequestProgress), 100, true);
+    	self.timer.start(self.method(:checkRequestProgress), 1000, true);
     }
     
     // abort the loading dialog when the request is finished
@@ -40,6 +40,11 @@ class LoadingView extends BaseLayoutView {
     	}
     }
     
+	function onShow() {
+		BaseLayoutView.onShow();
+		Notify.enableBacklight();
+	}
+
     function onUpdate(dc) {
     	if (BaseLayoutView.onUpdate(dc)) {
     		return true;
@@ -49,5 +54,10 @@ class LoadingView extends BaseLayoutView {
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
 		// TODO draw loading dots / arc / timeout time
+	}
+	
+	function onHide() {
+		BaseLayoutView.onHide();
+		Notify.disableBacklight();
 	}
 }
