@@ -107,10 +107,12 @@ class CameraListView extends BaseLayoutView {
     			var j = i - self.page;
     			var camera = cameraList[i];
     			var currentOffset = yOffset - 10 + rowHeight*(j+1);
+
     			if (j != 0) {
-    				dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+    				dc.setColor(!camera["is_online"] ? Graphics.COLOR_DK_RED : Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
     			} else {
-    				dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+    				// selected item
+    				dc.setColor(!camera["is_online"] ? Graphics.COLOR_RED : Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
     			}
     			var icon = camera["is_streaming"] ? self.iconCheck : self.iconTimes;
     			var textDimensions = dc.getTextDimensions(camera["name"], Graphics.FONT_XTINY);
@@ -120,6 +122,7 @@ class CameraListView extends BaseLayoutView {
     			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffset-rowHeight/2-10 + iconOffsetY , icon);
     			dc.drawText(self.width/2, currentOffset-rowHeight/2-10, Graphics.FONT_XTINY, camera["name"], Graphics.TEXT_JUSTIFY_CENTER);
     			if (j == 0) {
+    				// selected item
     				dc.setPenWidth(3);
     			}
 	    		dc.drawLine(0, currentOffset, self.width, currentOffset);
