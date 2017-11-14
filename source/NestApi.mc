@@ -266,7 +266,8 @@ static class NestApi {
     }
 
     protected function saveCachedCameraList() {
-    	if (self.cameraList == null) {
+    	var previousSaveTime = Properties.getCamerasUpdatedAt();
+    	if (self.cameraList == null || self.camerasUpdatedAt == null || !self.camerasUpdatedAt.greaterThan(previousSaveTime)) {
     		return;
     	}
     	Properties.setCameraList(self.cameraList);
