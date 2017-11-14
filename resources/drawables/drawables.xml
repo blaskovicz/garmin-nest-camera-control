@@ -8,4 +8,5 @@
 	<bitmap id="phonesquare16" filename="16/phone-square.png" />
 	<bitmap id="exclamationtriangle16" filename="16/exclamation-triangle.png" />
 	<bitmap id="exclamationcircle16" filename="16/exclamation-circle.png" />
+	<bitmap id="refresh16" filename="16/refresh.png" />
 </drawables>

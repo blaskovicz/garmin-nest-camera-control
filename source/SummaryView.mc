@@ -39,6 +39,8 @@ class SummaryView extends BaseLayoutView {
 	protected var iconCheck;
 	protected var iconExclamation;
 	protected var iconPhone;
+	protected var iconRefresh;
+
     function initialize() {
     	self.ref = "summary-view";
         BaseLayoutView.initialize();
@@ -50,6 +52,7 @@ class SummaryView extends BaseLayoutView {
     	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
     	self.iconExclamation = Ui.loadResource(Rez.Drawables.exclamationtriangle16);
     	self.iconPhone = Ui.loadResource(Rez.Drawables.phonesquare16);
+    	self.iconRefresh = Ui.loadResource(Rez.Drawables.refresh16);
     	self.onUpdate(dc);
     }
 
@@ -136,18 +139,55 @@ class SummaryView extends BaseLayoutView {
     	
     	if (camerasUpdatedAt != null) {
 	    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-	    	var t = Gregorian.info(camerasUpdatedAt, Time.FORMAT_SHORT);
+	    	var deltaSeconds = Time.now().subtract(camerasUpdatedAt).value();
+	    	// hours, mins, seconds
+	    	var hours = 0;
+	    	while(deltaSeconds >= 3600) { // seconds per hour
+	    		deltaSeconds -= 3600;
+	    		hours++;
+	    	}
+	    	var mins = 0; 
+	    	while(deltaSeconds >= 60) { // seconds per min
+	    		deltaSeconds -= 60;
+	    		mins++;
+	    	}
+	    	// deltaSeconds is now leftover seconds
+	    	var updateText = "";
+	    	if (hours > 0) {
+	    		updateText = updateText + hours.format("%d") + "h";
+	    	}
+	    	if (mins > 0) {
+	    		updateText = updateText + mins.format("%d") + "m";
+	    	}
+	    	if (deltaSeconds > 15) {
+	    		updateText = updateText + deltaSeconds.format("%d") + "s";
+	    	}
+	    	if (updateText.equals("")) {
+	    		updateText = "just now";
+	    	} else {
+	    		updateText = updateText + " ago";
+	    	}
+	    	
+    		var textDimensions = dc.getTextDimensions(updateText, Graphics.FONT_XTINY);
+			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
+			var iconOffsetY = (textDimensions[1] - 16)/ 2;
+	    	dc.drawBitmap(self.width/2 - iconOffsetX, iconOffsetY + self.height - fontTinyHeight*2, self.iconRefresh);
 	    	dc.drawText(
 	    		self.width/2,
 	    		self.height - fontTinyHeight*2,
 	    		Graphics.FONT_XTINY,
-	    		Lang.format("Updated $1$:$2$:$3$", [t.hour.format("%02d"), t.min.format("%02d"), t.sec.format("%02d")]), 
+	    		updateText, 
 				Graphics.TEXT_JUSTIFY_CENTER
 			);
 		}
 		if (!System.getDeviceSettings().phoneConnected) {
 	    	dc.drawBitmap(self.width/2, self.height-25, self.iconPhone);
 	    	dc.drawBitmap(self.width/2-14, self.height-25, self.iconExclamation);
-		}
+		} else {
+	    	var currentState = NestApi.getInstance().getPollerState();
+	    	if (currentState != null && currentState[:state] == NestApi.StateRequesting) {
+	    		dc.drawBitmap(self.width/2, self.height-25, self.iconPhone);
+	    	}
+	    }
     }
 }
