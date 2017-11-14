@@ -101,7 +101,7 @@ class SummaryView extends BaseLayoutView {
 	    				"$1$ of $2$ $3$",
 	    				[status[statuses[i]], cameraList.size(), statuses[i]]
 	    			);
-	    			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+	    			dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
 	    		} else {
 	    			icon = self.iconCheck;
 	    			// eg: 1 online
@@ -112,7 +112,6 @@ class SummaryView extends BaseLayoutView {
 	    			dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
 	    		}
 
-    			
 	    		var textDimensions = dc.getTextDimensions(statusText, Graphics.FONT_SMALL);
     			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
     			var iconOffsetY = (textDimensions[1] - 16)/ 2;
