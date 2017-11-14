@@ -25,10 +25,10 @@ class BaseLayoutView extends Ui.View {
     
 
     // Load your resources here
-    function onLayout(dc) {
+    //function onLayout(dc) {
    		//Logger.getInstance().info("ref=summary-view at=on-layout");    
         //setLayout(Rez.Layouts.MainLayout(dc));
-    }
+    //}
 
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes

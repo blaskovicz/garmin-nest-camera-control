@@ -1,4 +1,6 @@
-<!-- {label, drawable, bitmap, selectable, button} -->
+<!-- 
+https://developer.garmin.com/connect-iq/programmers-guide/user-interface/
+ -->
 <layout id="MainLayout">
 	<label color="Gfx.COLOR_WHITE" text="@Strings.AppName" />
 </layout>

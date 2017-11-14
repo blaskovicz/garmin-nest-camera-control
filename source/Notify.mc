@@ -1,9 +1,10 @@
 using Toybox.Attention;
+using Toybox.System;
 
 // utility class to help with watch vibration, backlight, sounds
 class Notify {
 	static function vibrate(how) {
-	    if (Attention has :vibrate) {
+	    if (Attention has :vibrate && System.getDeviceSettings().vibrateOn) {
 	        var vibrateData = [
 	            new Attention.VibeProfile(  25, 100 ),
 	            new Attention.VibeProfile(  50, 100 ),

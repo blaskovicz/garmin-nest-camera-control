@@ -29,6 +29,11 @@ class ErrorView extends BaseLayoutView {
 		BaseLayoutView.initialize();
 	}
 	
+	function onLayout(dc) {
+		BaseLayoutView.onLayout(dc);
+		self.onUpdate(dc);
+	}
+	
 	function onShow() {
 		BaseLayoutView.onShow();
 		NestApi.getInstance().stopTimer();

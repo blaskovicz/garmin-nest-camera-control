@@ -40,6 +40,11 @@ class LoadingView extends BaseLayoutView {
     	}
     }
     
+	function onLayout(dc) {
+		BaseLayoutView.onLayout(dc);
+		self.onUpdate(dc);
+	}
+    
 	function onShow() {
 		BaseLayoutView.onShow();
 		Notify.enableBacklight();

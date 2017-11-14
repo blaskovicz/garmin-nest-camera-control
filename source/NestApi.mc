@@ -4,6 +4,7 @@ using Toybox.Time;
 using Toybox.Timer;
 using Toybox.Time.Gregorian;
 using Toybox.Communications as Comm;
+using Toybox.System;
 using Env;
 
 var _api;
@@ -133,15 +134,20 @@ static class NestApi {
 		Ui.requestUpdate();
 		return true;
 	}
+	
+	protected function isPhoneConnected() {
+		return System.getDeviceSettings().phoneConnected; 
+	}
 
     function requestCameraStatus() {
     	var now = Time.now();
     	var accessToken = Properties.getNestAccessToken();
+    	var phoneConnected = self.isPhoneConnected();
     	// our poller runs every 30 seconds, so make sure we're rate limitting user-initiated requests to 1 per second max
-    	if (accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:seconds => 1}))))) {
+    	if (!phoneConnected || accessToken == null || (self.camerasUpdatedAt != null && now.lessThan(self.camerasUpdatedAt.add(Gregorian.duration({:seconds => 1}))))) {
     		Logger.getInstance().infoF(
-    			"ref=nest-api at=skip-request-camera-status has-token=$1$ cameras-updated-delta=$2$",
-    			[accessToken != null, (self.camerasUpdatedAt == null ? "null" : now.value()-self.camerasUpdatedAt.value())]
+    			"ref=nest-api at=skip-request-camera-status has-token=$1$ cameras-updated-delta=$2$ phone-connected=$3$",
+    			[accessToken != null, (self.camerasUpdatedAt == null ? "null" : now.value()-self.camerasUpdatedAt.value()), phoneConnected]
     		);
     		return;
     	} else if(!self.setPollerStateRequesting()) {

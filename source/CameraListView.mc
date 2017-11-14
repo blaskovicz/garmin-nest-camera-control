@@ -57,12 +57,13 @@ class CameraListView extends BaseLayoutView {
         BaseLayoutView.initialize();
     }
     
-    function onShow() {
-    	BaseLayoutView.onShow();
+	function onLayout(dc) {
+		BaseLayoutView.onLayout(dc);
     	self.iconTimes = Ui.loadResource(Rez.Drawables.times16);
     	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
-    }
-
+		self.onUpdate(dc);
+	}
+    
     function setPage(page) {
     	self.page = page;
     	Ui.requestUpdate();

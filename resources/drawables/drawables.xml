@@ -3,4 +3,9 @@
 	<bitmap id="LauncherIcon" filename="32/video-camera.png" />
 	<bitmap id="times16" filename="16/times.png" />
 	<bitmap id="check16" filename="16/check.png" />
+	<bitmap id="phone16" filename="16/phone.png" />
+	<bitmap id="mobile16" filename="16/mobile-phone.png" />
+	<bitmap id="phonesquare16" filename="16/phone-square.png" />
+	<bitmap id="exclamationtriangle16" filename="16/exclamation-triangle.png" />
+	<bitmap id="exclamationcircle16" filename="16/exclamation-circle.png" />
 </drawables>

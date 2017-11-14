@@ -4,6 +4,7 @@ using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Communications as Comm;
+using Toybox.System;
 
 class SummaryDelegate extends Ui.BehaviorDelegate {
 	protected var summaryUi;
@@ -36,15 +37,20 @@ class SummaryDelegate extends Ui.BehaviorDelegate {
 class SummaryView extends BaseLayoutView {
 	protected var iconTimes;
 	protected var iconCheck;
+	protected var iconExclamation;
+	protected var iconPhone;
     function initialize() {
     	self.ref = "summary-view";
         BaseLayoutView.initialize();
     }
-
-    function onShow() {
-    	BaseLayoutView.onShow();
+    
+    function onLayout(dc) {
+    	BaseLayoutView.onLayout(dc);
     	self.iconTimes = Ui.loadResource(Rez.Drawables.times16);
     	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
+    	self.iconExclamation = Ui.loadResource(Rez.Drawables.exclamationtriangle16);
+    	self.iconPhone = Ui.loadResource(Rez.Drawables.phonesquare16);
+    	self.onUpdate(dc);
     }
 
     function onUpdate(dc) {
@@ -138,6 +144,10 @@ class SummaryView extends BaseLayoutView {
 	    		Lang.format("Updated $1$:$2$:$3$", [t.hour.format("%02d"), t.min.format("%02d"), t.sec.format("%02d")]), 
 				Graphics.TEXT_JUSTIFY_CENTER
 			);
+		}
+		if (!System.getDeviceSettings().phoneConnected) {
+	    	dc.drawBitmap(self.width/2, self.height-25, self.iconPhone);
+	    	dc.drawBitmap(self.width/2-14, self.height-25, self.iconExclamation);
 		}
     }
 }
