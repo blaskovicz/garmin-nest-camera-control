@@ -51,12 +51,12 @@ class ErrorView extends BaseLayoutView {
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 		// TODO: wrap text to multiple lines for long errors
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		return true;
 	}
 	
 	function onHide() {
 		BaseLayoutView.onHide();
 		NestApi.getInstance().clearState();
 		NestApi.getInstance().startTimer();
-		Notify.disableBacklight();
 	}
 }

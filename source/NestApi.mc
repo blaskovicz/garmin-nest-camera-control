@@ -21,7 +21,9 @@ static class NestApi {
 		StateRequesting = 1,
 		StateRequestSuccess = 2
 	}
-	protected var state; // eg { :state => StateRequestError, :text => "some description }
+	
+	protected var temp;
+	protected var state; // eg { :state => StateRequestError, :text => "some description" }
 	protected var pollerState; // same as above, but seperate so we don't conflict with user-requested actions
 	
 	protected var camerasUpdatedAt;
@@ -207,10 +209,11 @@ static class NestApi {
     	if (accessToken == null) {
     		return;
     	}
-		if(!self.setStateRequesting(null)) {
+		if(!self.setStateRequesting((camera["is_streaming"] ? "Disabling" : "Enabling") + " stream...")) {
 			return;
 		}
-    	Logger.getInstance().infoF("ref=nest-api at=request-toggle-streaming camera=$1$ to=$2$", [camera["device_id"], !camera["is_streaming"]]);    	
+    	Logger.getInstance().infoF("ref=nest-api at=request-toggle-streaming camera=$1$ to=$2$", [camera["device_id"], !camera["is_streaming"]]);
+    	self.temp = camera;    	
         Comm.makeWebRequest(
             Lang.format("$1$/devices/cameras/$2$", [Env.NestApiProxyURI, camera["device_id"]]),
             { "is_streaming" => !camera["is_streaming"] },
@@ -230,6 +233,8 @@ static class NestApi {
     	if (responseCode != 200) {
     		self.setStateRequestError(Lang.format("Failed to update camera:\nCode $1$.", [responseCode]));
     	} else {
+    		self.temp["is_streaming"] = !self.temp["is_streaming"];
+    		self.temp = null;
     		self.setStateRequestSuccess();
     		self.requestCameraStatus();
     	}

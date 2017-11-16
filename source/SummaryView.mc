@@ -55,15 +55,18 @@ class SummaryView extends BaseLayoutView {
     	self.iconRefresh = Ui.loadResource(Rez.Drawables.refresh16);
     	self.onUpdate(dc);
     }
+    
+    function onShow() {
+    	BaseLayoutView.onShow();
+    }
 
     function onUpdate(dc) {
     	if(BaseLayoutView.onUpdate(dc)) {
     		return true;
     	}
-    	self.drawSummary(dc);
+    	return self.drawSummary(dc);
     }
     
-    // TODO: render an error if we can't contact the nest api
     function drawSummary(dc) {
     	if (NestApi.getInstance().isConnected()) {
     		self.drawCameraInfo(dc);
@@ -74,14 +77,15 @@ class SummaryView extends BaseLayoutView {
 			dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
 			dc.drawText(self.width/2, self.offsetY + fontTinyHeight*3, Graphics.FONT_TINY, "Press 'OK' to connect.", Graphics.TEXT_JUSTIFY_CENTER);
 		}
+		return true;
     }
     
     function drawCameraInfo(dc) {
     	var cameraList = NestApi.getInstance().getCameraList();
     	var camerasUpdatedAt = NestApi.getInstance().getCamerasUpdatedAt();
     	if (!NestApi.getInstance().hasCameras()) {
-    		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-    		dc.drawText(self.width/2, self.offsetY, Graphics.FONT_SMALL, "No cameras found.", Graphics.TEXT_JUSTIFY_CENTER);
+	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+			dc.drawText(self.width/2, self.offsetY + fontTinyHeight, Graphics.FONT_TINY, "No cameras found.\nAre you the Nest Home owner?", Graphics.TEXT_JUSTIFY_CENTER);
     	} else {
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		dc.drawText(self.width/2, self.offsetY, Graphics.FONT_SMALL, "Camera Status:", Graphics.TEXT_JUSTIFY_CENTER);
@@ -102,13 +106,14 @@ class SummaryView extends BaseLayoutView {
     		for (var i = 0; i < statuses.size(); i++) {
     			var icon;
     			var statusText;
+    			var statusKey = statuses[i];
     			
-	    		if (status[statuses[i]] != cameraList.size()) {
+	    		if (status[statusKey] != cameraList.size()) {
 	    			icon = self.iconTimes;
 	    			// eg: 1 of 2 online
 		    		statusText = Lang.format(
 	    				"$1$ of $2$ $3$",
-	    				[status[statuses[i]], cameraList.size(), statuses[i]]
+	    				[status[statusKey], cameraList.size(), statusKey]
 	    			);
 	    			dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
 	    		} else {
@@ -116,7 +121,7 @@ class SummaryView extends BaseLayoutView {
 	    			// eg: 1 online
 		    		statusText = Lang.format(
 	    				"$1$ $2$",
-	    				[status[statuses[i]], statuses[i]]
+	    				[status[statusKey], statusKey]
 	    			);
 	    			dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
 	    		}
