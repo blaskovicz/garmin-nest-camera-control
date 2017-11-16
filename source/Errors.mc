@@ -2,16 +2,13 @@ using Toybox.Lang;
 
 class BaseError extends Lang.Exception {
 	// custom errors for instanceof checking in catch() clause
-	private var cause;
+	protected var cause;
 	function initialize(cause) {
-		Exception.initialize();
 		self.cause = cause;
+		Exception.initialize();
 	}
-	function getCause() {
+	function getErrorMessage() {
 		return self.cause;
-	}
-	function toString() {
-		return self.getCause();
 	}
 }
 
