@@ -17,7 +17,7 @@ class SummaryDelegate extends Ui.BehaviorDelegate {
     function onKey(ev) {
         var key = ev.getKey();
         if (Ui.KEY_START != key && Ui.KEY_ENTER != key) {
-        	return;
+        	return false;
         }
 
     	Logger.getInstance().info("ref=summary-delegate at=on-ok");
@@ -31,6 +31,7 @@ class SummaryDelegate extends Ui.BehaviorDelegate {
     	} else {
     		NestApi.getInstance().requestCameraStatus();
     	}
+    	return false;
     }
 }
    
@@ -186,12 +187,12 @@ class SummaryView extends BaseLayoutView {
 			);
 		}
 		if (!System.getDeviceSettings().phoneConnected) {
-	    	dc.drawBitmap(self.width/2, self.height-25, self.iconPhone);
-	    	dc.drawBitmap(self.width/2-14, self.height-25, self.iconExclamation);
+	    	dc.drawBitmap(self.width/2-16, self.height-25, self.iconPhone);
+	    	dc.drawBitmap(self.width/2, self.height-25, self.iconExclamation);
 		} else {
 	    	var currentState = NestApi.getInstance().getPollerState();
 	    	if (currentState != null && currentState[:state] == NestApi.StateRequesting) {
-	    		dc.drawBitmap(self.width/2, self.height-25, self.iconPhone);
+	    		dc.drawBitmap(self.width/2-8, self.height-25, self.iconPhone);
 	    	}
 	    }
     }

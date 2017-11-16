@@ -19,19 +19,21 @@ class LoadingDelegate extends Ui.BehaviorDelegate {
 
 class LoadingView extends BaseLayoutView {
 	protected var timer;
+	protected var dotNumber;
 	function initialize() {
 		self.ref = "loading-view";
 		BaseLayoutView.initialize();
+		dotNumber = 0;
 		self.startTimer();	
 	}
 
     function startTimer() {
     	self.timer = new Timer.Timer();
-    	self.timer.start(self.method(:checkRequestProgress), 1000, true);
+    	self.timer.start(self.method(:checkRequestProgress), 300, true);
     }
     
     // abort the loading dialog when the request is finished
-    function checkRequestProgress() {
+    protected function popViewOnComplete() {
     	if (self.isComplete() && !self.poppingView) {
     		self.poppingView = true;
     		Logger.getInstance().info("ref=loading-view at=check-request-progress state-change=complete");
@@ -39,6 +41,17 @@ class LoadingView extends BaseLayoutView {
     		Ui.popView(Ui.SLIDE_IMMEDIATE);
     		return true;
     	}
+    }
+    function checkRequestProgress() {
+    	if (self.popViewOnComplete()) {
+			return true;
+    	}
+    	if (self.dotNumber+1 == 3) {
+    		self.dotNumber = 0;
+    	} else {
+    		self.dotNumber++;
+    	}
+    	Ui.requestUpdate();
     	return false;
     }
     
@@ -62,13 +75,20 @@ class LoadingView extends BaseLayoutView {
     	if (BaseLayoutView.onUpdate(dc)) {
     		return true;
     	}
-    	if (self.checkRequestProgress()) {
+    	if (self.popViewOnComplete()) {
     		return true;
     	}
 		var currentState = NestApi.getInstance().getState();    	
     	var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "Processing...";
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		
+		var pad = 24;
+		var loadingOffsetY = self.offsetY + fontTinyHeight*3 + pad;
+		var loadingOffsetX = self.width/2 - pad;
+		for (var i = 0; i < 3; i++) {
+			dc.method(i == self.dotNumber ? :fillCircle : :drawCircle).invoke(loadingOffsetX + pad*i, loadingOffsetY, 8);
+		}
 		// TODO draw loading dots / arc / timeout time
 		return true;
 	}

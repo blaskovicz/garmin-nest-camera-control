@@ -24,6 +24,7 @@ class ErrorDelegate extends Ui.BehaviorDelegate {
 }
 
 class ErrorView extends BaseLayoutView {
+	protected var iconExclamation;
 	function initialize() {
 		self.ref = "error-view";
 		BaseLayoutView.initialize();
@@ -31,6 +32,7 @@ class ErrorView extends BaseLayoutView {
 	
 	function onLayout(dc) {
 		BaseLayoutView.onLayout(dc);
+		self.iconExclamation = Ui.loadResource(Rez.Drawables.exclamationtriangle16);
 		self.onUpdate(dc);
 	}
 	
@@ -47,10 +49,11 @@ class ErrorView extends BaseLayoutView {
     	}
     	// TODO this blinks white text and then red after the transition - fix
 		var currentState = NestApi.getInstance().getState();
-		var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "An error occurred.\n";
+		var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "An error occurred.";
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 		// TODO: wrap text to multiple lines for long errors
 		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawBitmap(self.width/2 - 8, self.offsetY + fontTinyHeight, self.iconExclamation);
 		return true;
 	}
 	
