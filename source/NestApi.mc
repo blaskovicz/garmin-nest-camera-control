@@ -33,6 +33,8 @@ static class NestApi {
 	protected var connectTimeout;
 	protected var connecting;
 	
+	protected var notifyRequested;
+	
 	static function getInstance() {
 		if (_api == null) {
 			_api = new NestApi();
@@ -54,6 +56,21 @@ static class NestApi {
 		return self.pollerState;
 	}
 	
+	// debounce update requests and give us a few millis to finish
+	// writing data to self
+	protected function notifyResults() {
+		if (self.notifyRequested != null) {
+			return;
+		}
+    	self.notifyRequested = new Timer.Timer();
+    	self.notifyRequested.start(self.method(:flushNotify), 100, false);
+	}
+	
+	function flushNotify() {		
+		self.notifyRequested = null;
+		Ui.requestUpdate();
+	}
+	
 	function clearState() {
 		// error||success -> cleared
 		if(self.state == null || (self.state[:state] != StateRequestSuccess && self.state[:state] != StateRequestError)) {
@@ -61,7 +78,7 @@ static class NestApi {
 		}
 		Logger.getInstance().info("ref=nest-api at=clear-state");
 		self.state = null;
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -71,7 +88,7 @@ static class NestApi {
 			return false;
 		}
 		self.state = { :state => StateRequesting, :text => text };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -81,7 +98,7 @@ static class NestApi {
 			return false;
 		}
 		self.state = { :state => StateRequestError, :text => text };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -91,7 +108,7 @@ static class NestApi {
 			return false;
 		}		
 		self.state = { :state => StateRequestSuccess };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -101,7 +118,7 @@ static class NestApi {
 			return false;
 		}
 		self.pollerState = null;
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -111,7 +128,7 @@ static class NestApi {
 			return false;
 		}
 		self.pollerState = { :state => StateRequesting };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -121,7 +138,7 @@ static class NestApi {
 			return false;
 		}
 		self.pollerState = { :state => StateRequestError, :text => text };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 
@@ -131,7 +148,7 @@ static class NestApi {
 			return false;
 		}		
 		self.pollerState = { :state => StateRequestSuccess };
-		Ui.requestUpdate();
+		self.notifyResults();
 		return true;
 	}
 	
@@ -153,7 +170,7 @@ static class NestApi {
     	} else if(!self.setPollerStateRequesting()) {
 			return;
 		}
-		Logger.getInstance().info("ref=nest-api at=request-camera-status");
+		Logger.getInstance().info("ref=nest-api at=request-camera-status");	
         Comm.makeWebRequest(
             "https://developer-api.nest.com/devices/cameras",
             null,
@@ -267,7 +284,7 @@ static class NestApi {
 
     protected function saveCachedCameraList() {
     	var previousSaveTime = Properties.getCamerasUpdatedAt();
-    	if (self.cameraList == null || self.camerasUpdatedAt == null || !self.camerasUpdatedAt.greaterThan(previousSaveTime)) {
+    	if (self.cameraList == null || self.camerasUpdatedAt == null || (previousSaveTime != null && !self.camerasUpdatedAt.greaterThan(previousSaveTime))) {
     		return;
     	}
     	Properties.setCameraList(self.cameraList);
@@ -278,7 +295,7 @@ static class NestApi {
     function requestOauthConnect() {
     	if (self.connecting) {
     		return;
-    	} else if(!self.setStateRequesting("Connecting...")) {
+    	} else if(!self.setStateRequesting("Connecting, check phone...")) {
 			return;
 		}
     	Logger.getInstance().info("ref=nest-api at=request-oauth-connect");
@@ -300,7 +317,7 @@ static class NestApi {
 
     	// start our timer to cancel the request after 1 minute
     	self.connectTimeout = new Timer.Timer();
-    	self.timer.start(self.method(:cancelOauthConnect), 60000, false);
+    	self.connectTimeout.start(self.method(:cancelOauthConnect), 60000, false);
     }
     
     // https://forums.garmin.com/forum/developers/connect-iq/1270860-detect-if-user-cancelled-oauth-dialog-communications-makeoauthrequest?view=stream
