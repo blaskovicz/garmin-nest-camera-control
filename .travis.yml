@@ -1,0 +1,11 @@
+language: java
+jdk: oraclejdk8
+before_install:
+- sudo apt-get install -qq dos2unix
+- find . -type f | xargs dos2unix 
+install:
+- bash ./install-connectiq-sdk.sh
+before_script:
+- cp ./source/Env.mc.sample ./source/Env.mc 
+script:
+- bash ./build-connectiq-app.sh
