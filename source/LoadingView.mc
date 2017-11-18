@@ -1,5 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics;
+using Constants;
 
 class LoadingDelegate extends Ui.BehaviorDelegate {
     function initialize() {
@@ -82,10 +83,10 @@ class LoadingView extends BaseLayoutView {
 		var currentState = NestApi.getInstance().getState();    	
     	var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "Processing...";
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
 		
 		var pad = 24;
-		var loadingOffsetY = self.offsetY + fontTinyHeight*3 + pad;
+		var loadingOffsetY = self.offsetY + Constants.HEIGHT_FONT_TINY*3 + pad;
 		var loadingOffsetX = self.width/2 - pad;
 		for (var i = 0; i < 3; i++) {
 			dc.method(i == self.dotNumber ? :fillCircle : :drawCircle).invoke(loadingOffsetX + pad*i, loadingOffsetY, 8);

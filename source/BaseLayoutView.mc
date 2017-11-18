@@ -3,8 +3,7 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics;
 using Toybox.Lang;
-
-var fontTinyHeight = Graphics.getFontHeight(Graphics.FONT_TINY);
+using Constants;
 
 class BaseLayoutView extends Ui.View {
 	protected var width;
@@ -24,6 +23,9 @@ class BaseLayoutView extends Ui.View {
    		Logger.getInstance().infoF("ref=$1$ at=initialize", [self.ref]);
    		self.pushingView = false;
    		self.poppingView = false; 
+   		
+   		// let children know where to start drawing
+    	self.offsetY = Constants.HEIGHT_FONT_TINY*2 - 5;
     }
     
     protected function isAnEphemeralView() {
@@ -56,6 +58,7 @@ class BaseLayoutView extends Ui.View {
     function onLayout(dc) {
     	//View.onLayout(dc);
    		Logger.getInstance().infoF("ref=$1$ at=on-layout", [self.ref]);
+   		self.setLayout(Rez.Layouts.MainLayout(dc));
    		return self.handleAsyncView();    
     }
 
@@ -102,14 +105,7 @@ class BaseLayoutView extends Ui.View {
 	    } else if (!self.isAnEphemeralView() && pollerState != null && pollerState[:state] == NestApi.StateRequestError && self.toastTimeout == null) {
 	    	self.drawToast(dc, Graphics.COLOR_RED, pollerState[:text]);
 	    	self.startToastPollerTimeout();
-		} else {
-	    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-	    	dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
-	    	dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
-	    }
-
-		// let children know where to start drawing
-    	self.offsetY = fontTinyHeight*2 - 5;
+		}
 
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.setPenWidth(1);
@@ -118,10 +114,10 @@ class BaseLayoutView extends Ui.View {
     
     function drawToast(dc, color, text) {
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-		dc.fillRectangle(0, 0, self.width, fontTinyHeight*2 - 10);
+		dc.fillRectangle(0, 0, self.width, Constants.HEIGHT_FONT_TINY*2 - 10);
 		dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(self.width/2, fontTinyHeight - 10, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
-		dc.drawLine(0, fontTinyHeight*2 - 10, self.width, fontTinyHeight*2 - 10);
+		dc.drawText(self.width/2, Constants.HEIGHT_FONT_TINY - 10, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawLine(0, Constants.HEIGHT_FONT_TINY*2 - 10, self.width, Constants.HEIGHT_FONT_TINY*2 - 10);
     }
     
     // TODO common toast queue

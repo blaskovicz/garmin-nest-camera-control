@@ -343,7 +343,7 @@ static class NestApi {
     	if (!self.connecting) {
     		return;
     	}
-    	Logger.getInstance().infoF("ref=nest-api at=on-oauth-response-phase-1 response-code='$1$' data='$2$'", [resp.responseCode, resp.data]);
+    	Logger.getInstance().infoF("ref=nest-api at=on-oauth-response-phase-1 response-code='$1$'", [resp.responseCode]);
     	if (resp.data != null && resp.data["code"] != null && "TODO".equals(resp.data["state"])) {
     		// skip setting request success to avoid transaction race between toast and phase 2 response
 			//if(!self.setStateRequestSuccess()) {

@@ -1,5 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics;
+using Constants;
 
 class ErrorDelegate extends Ui.BehaviorDelegate {
     function initialize() {
@@ -52,8 +53,8 @@ class ErrorView extends BaseLayoutView {
 		var text = currentState != null && currentState.hasKey(:text) && currentState[:text] != null ? currentState[:text] : "An error occurred.";
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 		// TODO: wrap text to multiple lines for long errors
-		dc.drawText(self.width/2, self.offsetY + fontTinyHeight*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
-		dc.drawBitmap(self.width/2 - 8, self.offsetY + fontTinyHeight, self.iconExclamation);
+		dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY*2, Graphics.FONT_TINY, text, Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawBitmap(self.width/2 - 8, self.offsetY + Constants.HEIGHT_FONT_TINY, self.iconExclamation);
 		return true;
 	}
 	

@@ -5,6 +5,7 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Communications as Comm;
 using Toybox.System;
+using Constants;
 
 class SummaryDelegate extends Ui.BehaviorDelegate {
 	protected var summaryUi;
@@ -48,13 +49,16 @@ class SummaryView extends BaseLayoutView {
     }
     
     function onLayout(dc) {
-    	BaseLayoutView.onLayout(dc);
+    	if (BaseLayoutView.onLayout(dc)) {
+    		return true;
+    	}
     	self.iconTimes = Ui.loadResource(Rez.Drawables.times16);
     	self.iconCheck = Ui.loadResource(Rez.Drawables.check16);
     	self.iconExclamation = Ui.loadResource(Rez.Drawables.exclamationtriangle16);
     	self.iconPhone = Ui.loadResource(Rez.Drawables.phonesquare16);
     	self.iconRefresh = Ui.loadResource(Rez.Drawables.refresh16);
     	//return self.onUpdate(dc);
+    	return true;
     }
     
     function onUpdate(dc) {
@@ -69,10 +73,10 @@ class SummaryView extends BaseLayoutView {
     		self.drawCameraInfo(dc);
     	} else {
 	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(self.width/2, self.offsetY + fontTinyHeight, Graphics.FONT_MEDIUM, "Not connected.", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY, Graphics.FONT_MEDIUM, "Not connected.", Graphics.TEXT_JUSTIFY_CENTER);
 			
 			dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(self.width/2, self.offsetY + fontTinyHeight*3, Graphics.FONT_TINY, "Press 'OK' to connect.", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY*3, Graphics.FONT_TINY, "Press 'OK' to connect.", Graphics.TEXT_JUSTIFY_CENTER);
 		}
 		return true;
     }
@@ -82,7 +86,7 @@ class SummaryView extends BaseLayoutView {
     	var camerasUpdatedAt = NestApi.getInstance().getCamerasUpdatedAt();
     	if (!NestApi.getInstance().hasCameras()) {
 	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(self.width/2, self.offsetY + fontTinyHeight, Graphics.FONT_TINY, "No cameras found.\nAre you the Nest Home owner?", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY, Graphics.FONT_TINY, "No cameras found.\nAre you the Nest Home owner?", Graphics.TEXT_JUSTIFY_CENTER);
     	} else {
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		dc.drawText(self.width/2, self.offsetY, Graphics.FONT_SMALL, "Camera Status:", Graphics.TEXT_JUSTIFY_CENTER);
@@ -126,7 +130,7 @@ class SummaryView extends BaseLayoutView {
 	    		var textDimensions = dc.getTextDimensions(statusText, Graphics.FONT_SMALL);
     			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
     			var iconOffsetY = (textDimensions[1] - 16)/ 2;
-    			var currentOffsetY = self.offsetY + (i+2)*fontTinyHeight;
+    			var currentOffsetY = self.offsetY + (i+2)*Constants.HEIGHT_FONT_TINY;
     			
     			dc.drawBitmap(self.width/2 - iconOffsetX, currentOffsetY + iconOffsetY, icon);
 	    		dc.drawText(
@@ -173,10 +177,10 @@ class SummaryView extends BaseLayoutView {
     		var textDimensions = dc.getTextDimensions(updateText, Graphics.FONT_XTINY);
 			var iconOffsetX = textDimensions[0] / 2 + 16 + 5;
 			var iconOffsetY = (textDimensions[1] - 16)/ 2;
-	    	dc.drawBitmap(self.width/2 - iconOffsetX, iconOffsetY + self.height - fontTinyHeight*2, self.iconRefresh);
+	    	dc.drawBitmap(self.width/2 - iconOffsetX, iconOffsetY + self.height - Constants.HEIGHT_FONT_TINY*2, self.iconRefresh);
 	    	dc.drawText(
 	    		self.width/2,
-	    		self.height - fontTinyHeight*2,
+	    		self.height - Constants.HEIGHT_FONT_TINY*2,
 	    		Graphics.FONT_XTINY,
 	    		updateText, 
 				Graphics.TEXT_JUSTIFY_CENTER
@@ -191,10 +195,5 @@ class SummaryView extends BaseLayoutView {
 	    		dc.drawBitmap(self.width/2-8, self.height-25, self.iconPhone);
 	    	}
 	    }
-    }
-    
-    function onHide() {
-    	BaseLayoutView.onHide();
-    	return;
     }
 }
