@@ -213,7 +213,7 @@ static class NestApi {
 			return;
 		}
     	Logger.getInstance().infoF("ref=nest-api at=request-toggle-streaming camera=$1$ to=$2$", [camera["device_id"], !camera["is_streaming"]]);
-    	self.temp = camera;    	
+    	self.temp = camera;  	
         Comm.makeWebRequest(
             Lang.format("$1$/devices/cameras/$2$", [Env.NestApiProxyURI, camera["device_id"]]),
             { "is_streaming" => !camera["is_streaming"] },
@@ -236,7 +236,7 @@ static class NestApi {
     		self.temp["is_streaming"] = !self.temp["is_streaming"];
     		self.temp = null;
     		self.setStateRequestSuccess();
-    		self.requestCameraStatus();
+    		// self.requestCameraStatus(); // state may be replicating still
     	}
     }
 

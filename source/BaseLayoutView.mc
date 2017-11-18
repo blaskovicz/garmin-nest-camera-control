@@ -54,7 +54,7 @@ class BaseLayoutView extends Ui.View {
 
     // Load your resources here
     function onLayout(dc) {
-    	View.onLayout(dc);
+    	//View.onLayout(dc);
    		Logger.getInstance().infoF("ref=$1$ at=on-layout", [self.ref]);
    		return self.handleAsyncView();    
     }
@@ -92,7 +92,7 @@ class BaseLayoutView extends Ui.View {
     	
     	// clear screen
     	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-    	dc.clear();
+    	//dc.clear();
     	dc.setPenWidth(3);
     	
 		// draw toast message if we have one, otherwise the normal header
@@ -178,7 +178,7 @@ class BaseLayoutView extends Ui.View {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() {
-    	View.onHide();
+    	//View.onHide();
     	Logger.getInstance().infoF("ref=$1$ at=on-hide", [self.ref]);
     	self.clearToast();
     	self.clearToastPoller();

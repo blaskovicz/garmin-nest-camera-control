@@ -5,9 +5,14 @@ using Toybox.Application as App;
 // * https://developer.garmin.com/connect-iq/programmers-guide/user-interface/
 // * https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/WatchUi.html
 class GNCCApp extends App.AppBase {
+	protected var entryView;
     function initialize() {
     	Logger.getInstance().info("ref=gncc-app at=initialize");
         AppBase.initialize();
+        if (entryView == null) {
+	    	var view = new SummaryView();
+	        entryView = [ view, new SummaryDelegate(view) ];
+        }
     }
 
     // onStart() is called on application start up
@@ -29,7 +34,6 @@ class GNCCApp extends App.AppBase {
     // Return the initial view of your application here
     function getInitialView() {
     	Logger.getInstance().info("ref=gncc-app at=get-initial-view");
-    	var view = new SummaryView();
-        return [ view, new SummaryDelegate(view) ];
+		return entryView;
     }
 }

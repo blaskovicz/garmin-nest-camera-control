@@ -41,6 +41,7 @@ class LoadingView extends BaseLayoutView {
     		Ui.popView(Ui.SLIDE_IMMEDIATE);
     		return true;
     	}
+    	return false;
     }
     function checkRequestProgress() {
     	if (self.popViewOnComplete()) {

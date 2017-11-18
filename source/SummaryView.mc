@@ -54,13 +54,9 @@ class SummaryView extends BaseLayoutView {
     	self.iconExclamation = Ui.loadResource(Rez.Drawables.exclamationtriangle16);
     	self.iconPhone = Ui.loadResource(Rez.Drawables.phonesquare16);
     	self.iconRefresh = Ui.loadResource(Rez.Drawables.refresh16);
-    	self.onUpdate(dc);
+    	//return self.onUpdate(dc);
     }
     
-    function onShow() {
-    	BaseLayoutView.onShow();
-    }
-
     function onUpdate(dc) {
     	if(BaseLayoutView.onUpdate(dc)) {
     		return true;
@@ -195,5 +191,10 @@ class SummaryView extends BaseLayoutView {
 	    		dc.drawBitmap(self.width/2-8, self.height-25, self.iconPhone);
 	    	}
 	    }
+    }
+    
+    function onHide() {
+    	BaseLayoutView.onHide();
+    	return;
     }
 }
