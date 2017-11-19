@@ -181,3 +181,5 @@ class BaseLayoutView extends Ui.View {
     	return false;
     }
 }
+
+// vi:syntax=javascript filetype=javascript

@@ -197,3 +197,5 @@ class SummaryView extends BaseLayoutView {
 	    }
     }
 }
+
+// vi:syntax=javascript filetype=javascript

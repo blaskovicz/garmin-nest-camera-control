@@ -37,3 +37,5 @@ class GNCCApp extends App.AppBase {
 		return entryView;
     }
 }
+
+// vi:syntax=javascript filetype=javascript

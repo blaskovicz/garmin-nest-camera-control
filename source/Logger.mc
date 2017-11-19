@@ -122,3 +122,5 @@ class Logger {
 		self.setLevel(level);
 	}
 }
+
+// vi:syntax=javascript filetype=javascript

@@ -64,3 +64,5 @@ class ErrorView extends BaseLayoutView {
 		NestApi.getInstance().startTimer();
 	}
 }
+
+// vi:syntax=javascript filetype=javascript

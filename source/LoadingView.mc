@@ -95,3 +95,5 @@ class LoadingView extends BaseLayoutView {
 		return true;
 	}
 }
+
+// vi:syntax=javascript filetype=javascript

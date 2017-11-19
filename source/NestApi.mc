@@ -400,3 +400,4 @@ static class NestApi {
     }
 }
 		
+// vi:syntax=javascript filetype=javascript

@@ -13,3 +13,5 @@ class BaseError extends Lang.Exception {
 }
 
 class InvalidArgumentError extends BaseError { function initialize(cause){ BaseError.initialize(cause); } }
+
+// vi:syntax=javascript filetype=javascript

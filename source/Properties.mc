@@ -56,3 +56,5 @@ static class Properties {
 		getApp().setProperty("cameras_updated_at", time.value());
 	}
 }
+
+// vi:syntax=javascript filetype=javascript

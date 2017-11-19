@@ -142,3 +142,5 @@ class CameraListView extends BaseLayoutView {
     	}
     }
 }
+
+// vi:syntax=javascript filetype=javascript

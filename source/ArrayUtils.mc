@@ -22,3 +22,5 @@ class ArrayUtils {
 		return result;
 	}
 }
+
+// vi:syntax=javascript filetype=javascript

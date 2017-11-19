@@ -27,3 +27,5 @@ class Notify {
 		}
 	}
 }
+
+// vi:syntax=javascript filetype=javascript
