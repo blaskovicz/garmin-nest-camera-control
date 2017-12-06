@@ -9,9 +9,4 @@
 	<bitmap id="exclamationtriangle16" filename="16/exclamation-triangle.png" />
 	<bitmap id="exclamationcircle16" filename="16/exclamation-circle.png" />
 	<bitmap id="refresh16" filename="16/refresh.png" />
-	
-    <drawable-list id="GarminNestHeader" background="Graphics.COLOR_BLACK">
-    	<shape type="rectangle" color="Graphics.COLOR_BLACK" x="0" y="0" width="fill" height="fill" />
-        <shape type="rectangle" x="0" y="Constants.HEIGHT_FONT_TINY*2 - 10" width="fill" height="3" color="Graphics.COLOR_BLUE" />
-    </drawable-list>
 </drawables>

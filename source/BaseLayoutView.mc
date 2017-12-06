@@ -56,9 +56,8 @@ class BaseLayoutView extends Ui.View {
 
     // Load your resources here
     function onLayout(dc) {
-    	//View.onLayout(dc);
+    	View.onLayout(dc);
    		Logger.getInstance().infoF("ref=$1$ at=on-layout", [self.ref]);
-   		self.setLayout(Rez.Layouts.MainLayout(dc));
    		return self.handleAsyncView();    
     }
 
@@ -105,7 +104,11 @@ class BaseLayoutView extends Ui.View {
 	    } else if (!self.isAnEphemeralView() && pollerState != null && pollerState[:state] == NestApi.StateRequestError && self.toastTimeout == null) {
 	    	self.drawToast(dc, Graphics.COLOR_RED, pollerState[:text]);
 	    	self.startToastPollerTimeout();
-		}
+		} else {
+ 	    	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+ 	    	dc.drawText(self.width/2,  Constants.HEIGHT_FONT_TINY - 10, Graphics.FONT_TINY, "Garmin Nest", Graphics.TEXT_JUSTIFY_CENTER);
+ 	    	dc.drawLine(0,  Constants.HEIGHT_FONT_TINY*2 - 10, self.width,  Constants.HEIGHT_FONT_TINY*2 - 10);
+ 	    }
 
 		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.setPenWidth(1);
