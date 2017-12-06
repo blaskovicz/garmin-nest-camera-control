@@ -86,7 +86,7 @@ class SummaryView extends BaseLayoutView {
     	var camerasUpdatedAt = NestApi.getInstance().getCamerasUpdatedAt();
     	if (!NestApi.getInstance().hasCameras()) {
 	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY, Graphics.FONT_TINY, "No cameras found.\nAre you the Nest Home owner?", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(self.width/2, self.offsetY + Constants.HEIGHT_FONT_TINY, Graphics.FONT_TINY, "No cameras found.\nAre you the\nNest Home owner?", Graphics.TEXT_JUSTIFY_CENTER);
     	} else {
     		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     		dc.drawText(self.width/2, self.offsetY, Graphics.FONT_SMALL, "Camera Status:", Graphics.TEXT_JUSTIFY_CENTER);

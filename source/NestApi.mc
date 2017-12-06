@@ -1,7 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Lang;
 using Toybox.Time;
-using Toybox.Timer;
 using Toybox.Time.Gregorian;
 using Toybox.Communications as Comm;
 using Toybox.System;
@@ -22,21 +21,19 @@ static class NestApi {
 		StateRequestSuccess = 2
 	}
 	
+	protected var debounceResultsTimerName = "api-results";
+	protected var pollerTimerName = "api-poller";
+	protected var cancelOauthTimerName = "cancel-oauth-connect";
+	
 	protected var temp;
 	protected var state; // eg { :state => StateRequestError, :text => "some description" }
 	protected var pollerState; // same as above, but seperate so we don't conflict with user-requested actions
 	
 	protected var camerasUpdatedAt;
 	protected var cameraList;
-	
-	protected var timerStarted;
-	protected var timer;
-	
-	protected var connectTimeout;
+		
 	protected var connecting;
-	
-	protected var notifyRequested;
-	
+		
 	static function getInstance() {
 		if (_api == null) {
 			_api = new NestApi();
@@ -47,7 +44,6 @@ static class NestApi {
 	function initialize() {
 		Logger.getInstance().info("ref=nest-api at=initialize");
 		Comm.registerForOAuthMessages(self.method(:onOauthResponsePhase1));
-		self.timerStarted = false;
 	}
 	
 	function getState() {
@@ -61,15 +57,14 @@ static class NestApi {
 	// debounce update requests and give us a few millis to finish
 	// writing data to self
 	protected function notifyResults() {
-		if (self.notifyRequested != null) {
+		if (Cron.getInstance().isEnabled(debounceResultsTimerName)) {
 			return;
 		}
-    	self.notifyRequested = new Timer.Timer();
-    	self.notifyRequested.start(self.method(:flushNotify), 100, false);
+		
+		Cron.getInstance().register(debounceResultsTimerName, 300, self.method(:flushNotify), false);
 	}
 	
 	function flushNotify() {		
-		self.notifyRequested = null;
 		Ui.requestUpdate();
 	}
 	
@@ -257,25 +252,23 @@ static class NestApi {
     }
 
     function startTimer() {
-    	if (self.timerStarted) {
+    	if (Cron.getInstance().isEnabled(pollerTimerName)) {
     		return;
     	}
+    	
     	Logger.getInstance().info("ref=nest-api at=start-timer");
 		self.loadCachedCameraList();
 		self.requestCameraStatus();
-    	self.timerStarted = true;
-    	self.timer = new Timer.Timer();
-    	self.timer.start(self.method(:requestCameraStatus), 30000, true);
+		Cron.getInstance().register(pollerTimerName, 30000, self.method(:requestCameraStatus), true);
     }
     
     function stopTimer() {
-    	if (self.timer == null || !self.timerStarted) {
+    	if (!Cron.getInstance().isRegistered(pollerTimerName)) {
     		return;
-		}
+    	}
+
 		Logger.getInstance().info("ref=nest-api at=stop-timer");
 		self.saveCachedCameraList();
-		self.timerStarted = false;
-    	self.timer.stop();
     	Comm.cancelAllRequests();
     }
     
@@ -321,8 +314,7 @@ static class NestApi {
     	);
 
     	// start our timer to cancel the request after 1 minute
-    	self.connectTimeout = new Timer.Timer();
-    	self.connectTimeout.start(self.method(:cancelOauthConnect), 60000, false);
+    	Cron.getInstance().register(cancelOauthTimerName, 45000, self.method(:cancelOauthConnect), false);
     }
     
     // https://forums.garmin.com/forum/developers/connect-iq/1270860-detect-if-user-cancelled-oauth-dialog-communications-makeoauthrequest?view=stream
@@ -385,7 +377,7 @@ static class NestApi {
 
     function onOauthResponsePhase2(responseCode, data) {
     	Logger.getInstance().infoF("ref=nest-api at=on-oauth-response-phase-2 response-code='$1$' data='$2$'", [responseCode, data]);
-    	self.connectTimeout.stop();
+    	Cron.getInstance().unregister(cancelOauthTimerName);
         self.connecting = false;
         if(data != null) {
 			if(!self.setStateRequestSuccess()) {

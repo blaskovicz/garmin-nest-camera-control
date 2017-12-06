@@ -21,24 +21,20 @@ class LoadingDelegate extends Ui.BehaviorDelegate {
 class LoadingView extends BaseLayoutView {
 	protected var timer;
 	protected var dotNumber;
+	static const timerName = "loading-view-ui";
 	function initialize() {
 		self.ref = "loading-view";
 		BaseLayoutView.initialize();
 		dotNumber = 0;
-		self.startTimer();	
+		Cron.getInstance().register(timerName, 300, self.method(:checkRequestProgress), true); 
 	}
-
-    function startTimer() {
-    	self.timer = new Timer.Timer();
-    	self.timer.start(self.method(:checkRequestProgress), 300, true);
-    }
     
     // abort the loading dialog when the request is finished
     protected function popViewOnComplete() {
     	if (self.isComplete() && !self.poppingView) {
     		self.poppingView = true;
     		Logger.getInstance().info("ref=loading-view at=check-request-progress state-change=complete");
-    		self.timer.stop();
+    		Cron.getInstance().unregister(timerName);
     		Ui.popView(Ui.SLIDE_IMMEDIATE);
     		return true;
     	}

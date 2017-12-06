@@ -12,8 +12,8 @@ class BaseLayoutView extends Ui.View {
 	protected var ref;
 	protected var pushingView;
 	protected var poppingView;
-	protected var toastTimeout;
-	protected var toastPollerTimeout;
+	protected var toastTimerName = "toast-ui";
+	protected var toastPollerTimerName = "toast-poller-ui";
 
     function initialize() {
     	View.initialize();
@@ -98,10 +98,12 @@ class BaseLayoutView extends Ui.View {
     	dc.setPenWidth(3);
     	
 		// draw toast message if we have one, otherwise the normal header
-		if (!self.isAnEphemeralView() && currentState != null && currentState[:state] == NestApi.StateRequestSuccess && self.toastPollerTimeout == null) {
+		var displayingToast = Cron.getInstance().isEnabled(toastTimerName);
+		var displayingPollerToast = Cron.getInstance().isEnabled(toastPollerTimerName);
+		if (!self.isAnEphemeralView() && currentState != null && currentState[:state] == NestApi.StateRequestSuccess && !displayingPollerToast) {
 			self.drawToast(dc, Graphics.COLOR_DK_GREEN, "Success");
 	    	self.startToastTimeout();
-	    } else if (!self.isAnEphemeralView() && pollerState != null && pollerState[:state] == NestApi.StateRequestError && self.toastTimeout == null) {
+	    } else if (!self.isAnEphemeralView() && pollerState != null && pollerState[:state] == NestApi.StateRequestError && !displayingToast) {
 	    	self.drawToast(dc, Graphics.COLOR_RED, pollerState[:text]);
 	    	self.startToastPollerTimeout();
 		} else {
@@ -125,35 +127,32 @@ class BaseLayoutView extends Ui.View {
     
     // TODO common toast queue
     function startToastTimeout() {
-    	if (self.toastTimeout != null) {
+    	if (Cron.getInstance().isEnabled(toastTimerName)) {
     		return;
     	}
     	Logger.getInstance().infoF("ref=$1$ at=start-toast-timeout", [self.ref]);
-    	// start our timer to cancel the toast after 3 seconds
-    	self.toastTimeout = new Timer.Timer();
-    	self.toastTimeout.start(self.method(:clearToast), 5000, false);
+    	// start our timer to cancel the toast after some seconds
+    	Cron.getInstance().register(toastTimerName, 5100, self.method(:clearToast), false);
     	Notify.enableBacklight();
     	Notify.vibrate(:short);	
     }
 
     function startToastPollerTimeout() {
-    	if (self.toastPollerTimeout != null) {
+    	if (Cron.getInstance().isEnabled(toastPollerTimerName)) {
     		return;
     	}
     	Logger.getInstance().infoF("ref=$1$ at=start-toast-poller-timeout", [self.ref]);
-    	// start our timer to cancel the toast after 3 seconds
-    	self.toastPollerTimeout = new Timer.Timer();
-    	self.toastPollerTimeout.start(self.method(:clearToastPoller), 5000, false);
+    	// start our timer to cancel the toast after some seconds
+    	Cron.getInstance().register(toastPollerTimerName, 5100, self.method(:clearToastPoller), false);
 		Notify.enableBacklight();
     }
     
     function clearToast() {
-    	if (self.toastTimeout == null) {
+    	if (!Cron.getInstance().isEnabled(toastTimerName)) {
     		return;
     	}
     	Logger.getInstance().infoF("ref=$1$ at=clear-toast", [self.ref]);
-    	self.toastTimeout.stop();
-    	self.toastTimeout = null;
+    	Cron.getInstance().unregister(toastTimerName);
     	var currentState = NestApi.getInstance().getState();
     	if (currentState != null && currentState[:state] == NestApi.StateRequestSuccess) {
     		NestApi.getInstance().clearState();
@@ -161,12 +160,11 @@ class BaseLayoutView extends Ui.View {
     }
 
     function clearToastPoller() {
-    	if (self.toastPollerTimeout == null) {
+    	if (!Cron.getInstance().isEnabled(toastPollerTimerName)) {
     		return;
     	}
     	Logger.getInstance().infoF("ref=$1$ at=clear-toast-poller", [self.ref]);
-    	self.toastPollerTimeout.stop();
-    	self.toastPollerTimeout = null;
+    	Cron.getInstance().unregister(toastPollerTimerName);
     	var currentState = NestApi.getInstance().getPollerState();
     	if (currentState != null && currentState[:state] == NestApi.StateRequestError) {
     		NestApi.getInstance().clearPollerState();
