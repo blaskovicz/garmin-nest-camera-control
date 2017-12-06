@@ -14,6 +14,10 @@ static class Properties {
 		Logger.getInstance().info("ref=properties at=set-nest-access-token");
 		getApp().setProperty("access_token", token);
 	}
+	static function clearAll() {
+		Logger.getInstance().warn("ref=properties at=clear-all");
+		getApp().clearProperties();
+	}
 	static function getNestAccessToken() {
 		return getApp().getProperty("access_token");
 	}

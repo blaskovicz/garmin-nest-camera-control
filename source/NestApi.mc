@@ -184,7 +184,12 @@ static class NestApi {
     function onCameraListResponse(responseCode, data) {    	
     	if (responseCode != 200) {
     		Logger.getInstance().infoF("ref=nest-api at=on-camera-list-response response-code='$1$'", [responseCode]);
-    		self.setPollerStateRequestError(Lang.format("Error $1$", [responseCode]));
+    		if (responseCode == 401 || responseCode == 403) {
+	    		self.setPollerStateRequestError("Auth Error!");
+    			Properties.clearAll();    			
+    		} else {
+	    		self.setPollerStateRequestError(Lang.format("Error $1$", [responseCode]));
+    		}
     	} else if (self.setPollerStateRequestSuccess()) {
     		var cameraList = data.values();
     		// clean out some of the data we don't use since the memory usage may be too beefy
@@ -313,7 +318,7 @@ static class NestApi {
     		{"code" => "code", "error" => "error", "state" => "state"}
     	);
 
-    	// start our timer to cancel the request after 1 minute
+    	// start our timer to cancel the request after some time
     	Cron.getInstance().register(cancelOauthTimerName, 45000, self.method(:cancelOauthConnect), false);
     }
     
