@@ -93,3 +93,5 @@ static class Cron {
 		}
 	}
 }
+
+// vi:syntax=javascript filetype=javascript
