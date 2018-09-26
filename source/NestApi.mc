@@ -172,7 +172,7 @@ static class NestApi {
 		}
 		Logger.getInstance().info("ref=nest-api at=request-camera-status");	
         Comm.makeWebRequest(
-            Lang.format("$1$/devices/cameras", [Env.NestApiURI]),
+            Lang.format("$1$/devices/cameras", [Env.NestApiProxyURI]),
             null,
             {
             	:method => Comm.HTTP_REQUEST_METHOD_GET,
