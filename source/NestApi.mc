@@ -42,6 +42,9 @@ static class NestApi {
 	}
 
 	function initialize() {
+		if (_api != null) {
+			throw new InvalidArgumentError("new NestApi() unexpectedly invoked");
+		}	
 		Logger.getInstance().info("ref=nest-api at=initialize");
 		Comm.registerForOAuthMessages(self.method(:onOauthResponsePhase1));
 	}
@@ -169,7 +172,7 @@ static class NestApi {
 		}
 		Logger.getInstance().info("ref=nest-api at=request-camera-status");	
         Comm.makeWebRequest(
-            "https://developer-api.nest.com/devices/cameras",
+            Lang.format("$1$/devices/cameras", [Env.NestApiURI]),
             null,
             {
             	:method => Comm.HTTP_REQUEST_METHOD_GET,
