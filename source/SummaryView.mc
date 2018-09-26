@@ -161,13 +161,12 @@ class SummaryView extends BaseLayoutView {
 	    	var updateText = "";
 	    	if (hours > 0) {
 	    		updateText = updateText + hours.format("%d") + "h";
-	    	}
-	    	if (mins > 0) {
+	    	} else if (mins > 0) {
 	    		updateText = updateText + mins.format("%d") + "m";
-	    	}
-	    	if (deltaSeconds > 15) {
+	    	} else if (deltaSeconds > 30) {
 	    		updateText = updateText + deltaSeconds.format("%d") + "s";
 	    	}
+
 	    	if (updateText.equals("")) {
 	    		updateText = "just now";
 	    	} else {
